@@ -2,6 +2,9 @@ RTX 4070 + RYZEN 7 5800X 48GB RAM
 
 SCREEN CAPTURE RESOLUTION AT 1920X1080 
 
+TEST  for i in range(1000):
+        image = camera.get_latest_frame()
+
 Screen Capture FPS: 640
 [BetterCam] Capture benchmark with NVIDIA GPU
 Elapsed time: 3.53 seconds
