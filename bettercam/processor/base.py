@@ -3,18 +3,21 @@ from enum import Enum
 class ProcessorBackends(Enum):
     NUMPY = 'numpy'
     CUPY = 'cupy'
+    TORCHCUDA='TORCH-CUDA'
 
 class Processor:
-    def __init__(self, nvidia_gpu=False, output_color="RGB", rotation_angle=0):
+    def __init__(self, nvidia_gpu=False,torch_cuda=False, output_color="RGB", rotation_angle=0):
         if nvidia_gpu:
             backend = ProcessorBackends.CUPY
+        elif torch_cuda:
+            backend = ProcessorBackends.TORCHCUDA
         else:
             backend = ProcessorBackends.NUMPY
 
         self.color_mode = output_color
         self.backend = self._initialize_backend(backend)
 
-        if nvidia_gpu:
+        if nvidia_gpu or torch_cuda :
             self.set_rotation_CPfunction(rotation_angle)
         else:
             self.set_rotation_function(rotation_angle)
@@ -52,7 +55,12 @@ class Processor:
         elif backend == ProcessorBackends.CUPY:
             from bettercam.processor.cupy_processor import CupyProcessor
             return CupyProcessor(self.color_mode)
+        elif backend == ProcessorBackends.TORCHCUDA:
+            from bettercam.processor.TorchCuda_Processor import TorchProcessor
+            return TorchProcessor(self.color_mode)
         else:
             raise ValueError(f"Unknown backend: {backend}")
+
+
 
 
