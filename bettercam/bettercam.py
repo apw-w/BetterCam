@@ -22,8 +22,9 @@ class BetterCam:
         output: Output,
         device: Device,
         region: Tuple[int, int, int, int],
-        output_color: str = "RGB",
+        output_color: str = "BGRA",
         nvidia_gpu: bool = False,
+        torch_cuda: bool = False,
         max_buffer_len=64,
     ) -> None:
         self._output: Output = output
@@ -35,15 +36,18 @@ class BetterCam:
             output=self._output, device=self._device
         )
         self.nvidia_gpu = nvidia_gpu
+        self.torch_cuda = torch_cuda
 
         # Set the rotation angle from the output device
         self.rotation_angle: int = self._output.rotation_angle
         # Initialize Processor with the rotation angle and backend
         self._processor: Processor = Processor(
             output_color=output_color, 
-            nvidia_gpu=nvidia_gpu, 
+            nvidia_gpu=nvidia_gpu,
+            torch_cuda=torch_cuda,
             rotation_angle=self.rotation_angle
         )
+
         self.width, self.height = self._output.resolution
         self.channel_size = len(output_color) if output_color != "GRAY" else 1
 
@@ -253,4 +257,5 @@ class BetterCam:
             self._stagesurf,
             self._duplicator,
         )
+
 
