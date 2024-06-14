@@ -138,9 +138,8 @@ class BetterCam:
         #self._validate_region(region)
         self.is_capturing = True
         frame_shape = (region[3] - region[1], region[2] - region[0], self.channel_size)
-        self.__frame_buffer = np.ndarray(
-            (self.max_buffer_len, *frame_shape), dtype=np.uint8
-        )
+        #self.__frame_buffer = np.ndarray((self.max_buffer_len, *frame_shape), dtype=np.uint8)
+        self.__frame_buffer = np.zeros((self.max_buffer_len, *frame_shape), dtype=np.uint8)
         self.__thread = Thread(
             target=self.__capture,
             name="BetterCam",
@@ -179,6 +178,7 @@ class BetterCam:
         self.__capture_start_time = time.perf_counter()
 
         capture_error = None
+        last_valid_frame = None  # Mantieni l'ultimo frame valido
 
         while not self.__stop_capture.is_set():
             if self.__timer_handle:
@@ -189,9 +189,9 @@ class BetterCam:
                     continue
             try:
                 frame = self._grab(region)
-                if frame is None and video_mode:
-                    # Ripeti l'ultimo frame se in modalità video e nessun nuovo frame è disponibile
-                    frame = np.array(self.__frame_buffer[(self.__head - 1) % self.max_buffer_len], copy=False)
+                if frame is None and video_mode and last_valid_frame is not None:
+                    # Utilizza l'ultimo frame valido se in modalità video e nessun nuovo frame è disponibile
+                    frame = last_valid_frame
                 if frame is not None:
                     with self.__lock:
                         self.__frame_buffer[self.__head] = frame
@@ -200,6 +200,7 @@ class BetterCam:
                             self.__tail = (self.__tail + 1) % self.max_buffer_len
                         self.__frame_available.set()
                         self.__frame_count += 1
+                        last_valid_frame = frame
             except Exception as e:
                 import traceback
 
