@@ -210,7 +210,7 @@ class BetterCam:
             cancel_timer(self.__timer_handle)
             self.__timer_handle = None
         if capture_error is not None:
-            self.stop()
+            self.__stop_capture.set()
             raise capture_error
         print(
             f"Screen Capture FPS: {int(self.__frame_count/(time.perf_counter() - self.__capture_start_time))}"
