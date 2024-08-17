@@ -119,6 +119,7 @@ class BetterCam:
         target_fps: int = 60,
         video_mode=False,
         delay: int = 0,
+        bettercam_thread: bool = True,
     ):
         if delay != 0:
             time.sleep(delay)
@@ -131,13 +132,16 @@ class BetterCam:
         self.__frame_buffer = np.ndarray(
             (self.max_buffer_len, *frame_shape), dtype=np.uint8
         )
-        self.__thread = Thread(
-            target=self.__capture,
-            name="BetterCam",
-            args=(region, target_fps, video_mode),
-        )
-        self.__thread.daemon = True
-        self.__thread.start()
+        if bettercam_thread:
+            self.__thread = Thread(  # threading._active
+                target=self.__capture,
+                name="BetterCam",
+                args=(region, target_fps, video_mode),
+            )
+            self.__thread.daemon = True
+            self.__thread.start()
+        else:
+            self.__thread = None
 
     def stop(self):
         if self.is_capturing:
